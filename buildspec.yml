@@ -1,0 +1,30 @@
+version: 0.2
+env:
+  variables:
+    S3_BUCKET: "discover-movie"
+    PACKAGE: "github.com/anjoseb121/movie-go"
+
+phases:
+  install:
+    commands:
+      - mkdir -p "/go/src/$(dirname ${PACKAGE})"
+      - ln -s "${CODEBUILD_SRC_DIR}" "/go/src/${PACKAGE}"
+      - env
+      - go get -u github.com/golang/lint/golint
+  
+  pre_build:
+    commands:
+      - cd "/go/src/${PACKAGE}"
+      - go get -t ./...
+      - golint -set_exit_status
+      - go vet .
+      - go test .
+  
+  build:
+    commands:
+      - go build -o main
+      - aws cloudformation package --template-file template.yml
+
+artifacts:
+  files:
+    - packaged.yml
