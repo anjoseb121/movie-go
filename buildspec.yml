@@ -16,7 +16,6 @@ phases:
     commands:
       - cd "/go/src/${PACKAGE}"
       - go get -t ./...
-      - go lint -set_exit_status
       - go vet .
       - go test .
   
